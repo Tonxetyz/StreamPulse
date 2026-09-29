@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
 import { TopBar, type AspectRatio, type ExportStatus } from "@/components/editor/TopBar";
@@ -9,6 +9,7 @@ import { AIPanel } from "@/components/editor/AIPanel";
 import { HighlightTimeline, type TrimRange } from "@/components/editor/HighlightTimeline";
 import { useEditorStore } from "@/lib/store/useEditorStore";
 import { mockClips, HIGHLIGHT_TYPES, type HighlightType } from "@/lib/mock-clips";
+import { exportClipFromVideo } from "@/lib/export-clip";
 
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -18,13 +19,20 @@ export default function Home() {
 
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>("9:16");
   const [exportStatus, setExportStatus] = useState<ExportStatus>("idle");
+  const [exportProgress, setExportProgress] = useState(0);
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+  const [exportError, setExportError] = useState<string | null>(null);
   const [selectedTypes, setSelectedTypes] = useState<HighlightType[]>([...HIGHLIGHT_TYPES]);
   const [trimRange, setTrimRange] = useState<TrimRange>({ start: 0, end: clip.duration });
+
+  useEffect(() => () => { if (downloadUrl) URL.revokeObjectURL(downloadUrl); }, [downloadUrl]);
 
   function selectClip(id: string) {
     setSelectedClipId(id);
     const next = mockClips.find((c) => c.id === id);
     setTrimRange({ start: 0, end: next?.duration ?? 0 });
+    setExportStatus("idle");
+    setDownloadUrl(null);
   }
 
   function toggleType(type: HighlightType) {
@@ -38,12 +46,22 @@ export default function Home() {
     if (videoRef.current) videoRef.current.currentTime = time;
   }
 
-  function handleExport() {
+  async function handleExport() {
+    if (!videoRef.current) return;
+    setDownloadUrl(null);
+    setExportError(null);
+    setExportProgress(0);
     setExportStatus("exporting");
-    setTimeout(() => {
+    try {
+      const blob = await exportClipFromVideo(videoRef.current, trimRange.start, trimRange.end, (p) =>
+        setExportProgress(p.progress),
+      );
+      setDownloadUrl(URL.createObjectURL(blob));
       setExportStatus("done");
-      setTimeout(() => setExportStatus("idle"), 2500);
-    }, 1500);
+    } catch (err) {
+      setExportError(err instanceof Error ? err.message : String(err));
+      setExportStatus("error");
+    }
   }
 
   const filteredHighlights = clip.highlights.filter((h) => selectedTypes.includes(h.label as HighlightType));
@@ -51,7 +69,14 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-background px-6 py-6">
       <div className="mx-auto max-w-7xl">
-        <TopBar aspectRatio={aspectRatio} onAspectRatioChange={setAspectRatio} exportStatus={exportStatus} />
+        <TopBar
+          aspectRatio={aspectRatio}
+          onAspectRatioChange={setAspectRatio}
+          exportStatus={exportStatus}
+          exportProgress={exportProgress}
+          downloadUrl={downloadUrl}
+          errorMessage={exportError}
+        />
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_2fr_300px]">
           <Card className="lg:order-1">
@@ -62,6 +87,7 @@ export default function Home() {
                   key={c.id}
                   active={c.id === clip.id}
                   onClick={() => selectClip(c.id)}
+                  disabled={exportStatus === "exporting"}
                   className="justify-start truncate text-left"
                 >
                   {c.title}
@@ -71,7 +97,12 @@ export default function Home() {
           </Card>
 
           <div className="lg:order-2">
-            <PhonePreview clip={clip} aspectRatio={aspectRatio} videoRef={videoRef} />
+            <PhonePreview
+              clip={clip}
+              aspectRatio={aspectRatio}
+              videoRef={videoRef}
+              exporting={exportStatus === "exporting"}
+            />
           </div>
 
           <div className="lg:order-3">

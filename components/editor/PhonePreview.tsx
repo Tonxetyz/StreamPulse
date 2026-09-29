@@ -19,10 +19,12 @@ export function PhonePreview({
   clip,
   aspectRatio,
   videoRef,
+  exporting = false,
 }: {
   clip: MockClip;
   aspectRatio: AspectRatio;
   videoRef: RefObject<HTMLVideoElement | null>;
+  exporting?: boolean;
 }) {
   const {
     isPlaying,
@@ -68,6 +70,7 @@ export function PhonePreview({
             ref={videoRef}
             src={clip.videoUrl}
             className="h-full w-full object-cover"
+            crossOrigin="anonymous"
             muted
             playsInline
             onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
@@ -89,19 +92,26 @@ export function PhonePreview({
         <button
           type="button"
           onClick={togglePlay}
-          className="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors hover:bg-black/20"
+          disabled={exporting}
+          className="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors hover:bg-black/20 disabled:pointer-events-none"
         >
-          {!isPlaying && (
+          {!isPlaying && !exporting && (
             <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90 text-black">
               <Play size={22} className="ml-0.5" />
             </span>
           )}
         </button>
 
-        {isPlaying && (
-          <span className="pointer-events-none absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white">
-            <Pause size={14} />
+        {exporting ? (
+          <span className="pointer-events-none absolute right-3 top-3 flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-xs font-semibold text-accent-lime">
+            <span className="h-2 w-2 animate-pulse rounded-full bg-accent-lime" /> REC
           </span>
+        ) : (
+          isPlaying && (
+            <span className="pointer-events-none absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white">
+              <Pause size={14} />
+            </span>
+          )
         )}
       </div>
     </div>

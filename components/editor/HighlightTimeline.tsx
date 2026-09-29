@@ -83,7 +83,10 @@ export function HighlightTimeline({
 
       <div
         ref={trackRef}
-        className="relative h-12 w-full cursor-pointer rounded-lg bg-background"
+        className={cn(
+          "relative h-12 w-full cursor-pointer rounded-lg bg-background",
+          exportStatus === "exporting" && "pointer-events-none opacity-60",
+        )}
         onClick={(e) => onSeek(timeFromClientX(e.clientX))}
       >
         {/* затемнение вне зоны обрезки */}
