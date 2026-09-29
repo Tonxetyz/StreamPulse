@@ -70,7 +70,6 @@ export function PhonePreview({
             ref={videoRef}
             src={clip.videoUrl}
             className="h-full w-full object-cover"
-            crossOrigin="anonymous"
             muted
             playsInline
             onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}

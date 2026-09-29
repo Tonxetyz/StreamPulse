@@ -17,52 +17,49 @@ export interface CaptionWord {
   end: number;
 }
 
-// Открытые демо-ролики (MDN interactive-examples, CC0, отдаются с Access-Control-Allow-Origin: *
-// — это обязательное условие для реальной нарезки через captureStream(), см. lib/export-clip.ts)
-const FLOWER_URL = "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4";
-const FRIDAY_URL = "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/friday.mp4";
-
+// Демо-ролики лежат прямо в /public/demo-videos — свой источник, без внешнего
+// хостинга и без проблем с CORS (captureStream() требует same-origin либо
+// Access-Control-Allow-Origin на чужом видео, см. lib/export-clip.ts)
 export const mockClips: MockClip[] = [
   {
     id: "clip-clutch",
     title: "Победный клатч в овертайме",
-    videoUrl: FLOWER_URL,
-    duration: 5.05,
+    videoUrl: "/demo-videos/clutch.mp4",
+    duration: 6.16,
     highlights: [
-      { id: "h1", timeStart: 0.4, timeEnd: 1.6, label: "Laughter", score: 62, confidence: 0.81 },
-      { id: "h2", timeStart: 2.8, timeEnd: 4.8, label: "Clutch", score: 91, confidence: 0.94 },
+      { id: "h1", timeStart: 0.5, timeEnd: 2.0, label: "Laughter", score: 62, confidence: 0.81 },
+      { id: "h2", timeStart: 4.0, timeEnd: 5.8, label: "Clutch", score: 91, confidence: 0.94 },
     ],
   },
   {
     id: "clip-triple",
     title: "Тройное убийство подряд",
-    videoUrl: FRIDAY_URL,
-    duration: 6.16,
+    videoUrl: "/demo-videos/triple.mp4",
+    duration: 52.2,
     highlights: [
-      { id: "h1", timeStart: 0.5, timeEnd: 2.0, label: "Clutch", score: 88, confidence: 0.9 },
-      { id: "h2", timeStart: 4.0, timeEnd: 5.8, label: "Scream", score: 76, confidence: 0.72 },
+      { id: "h1", timeStart: 5, timeEnd: 10, label: "Clutch", score: 88, confidence: 0.9 },
+      { id: "h2", timeStart: 35, timeEnd: 45, label: "Scream", score: 76, confidence: 0.72 },
     ],
   },
   {
     id: "clip-comeback",
     title: "Эпичный камбэк на харде",
-    videoUrl: FLOWER_URL,
-    duration: 5.05,
+    videoUrl: "/demo-videos/comeback.mp4",
+    duration: 300.1,
     highlights: [
-      { id: "h1", timeStart: 0.3, timeEnd: 1.5, label: "Laughter", score: 55, confidence: 0.68 },
-      { id: "h2", timeStart: 2.0, timeEnd: 3.2, label: "Clutch", score: 84, confidence: 0.88 },
-      { id: "h3", timeStart: 3.6, timeEnd: 4.9, label: "Scream", score: 96, confidence: 0.97 },
+      { id: "h1", timeStart: 15, timeEnd: 22, label: "Laughter", score: 55, confidence: 0.68 },
+      { id: "h2", timeStart: 130, timeEnd: 140, label: "Clutch", score: 84, confidence: 0.88 },
+      { id: "h3", timeStart: 270, timeEnd: 282, label: "Scream", score: 96, confidence: 0.97 },
     ],
   },
   {
     id: "clip-bossfight",
     title: "Босс-файт под угарные шутки чата",
-    videoUrl: FRIDAY_URL,
-    duration: 6.16,
+    videoUrl: "/demo-videos/bossfight.mp4",
+    duration: 5.05,
     highlights: [
-      { id: "h1", timeStart: 0.5, timeEnd: 1.8, label: "Laughter", score: 58, confidence: 0.7 },
-      { id: "h2", timeStart: 2.2, timeEnd: 3.4, label: "Clutch", score: 79, confidence: 0.83 },
-      { id: "h3", timeStart: 3.8, timeEnd: 5.6, label: "Scream", score: 90, confidence: 0.92 },
+      { id: "h1", timeStart: 0.4, timeEnd: 1.6, label: "Laughter", score: 58, confidence: 0.7 },
+      { id: "h2", timeStart: 2.8, timeEnd: 4.8, label: "Clutch", score: 90, confidence: 0.92 },
     ],
   },
 ];
